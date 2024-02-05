@@ -1,30 +1,9 @@
-# 'cp1251'
-# 'cp-1251'
-# f = open('myfile.txt', 'w', encoding='utf-8')
-# f.write('какая-то строка\n')
-# f.close()
-#
-# f = open('myfile.txt', 'a', encoding='utf-8')
-# f.write('новая строка\n')
-# f.close()
-
-# with open('myfile.txt', 'w', encoding='utf-8') as fd:
-#     fd.write('какая-то строка\n')
-
-# with open('myfile.txt', 'r', encoding='utf-8') as fd:
-#     from_file = fd.readlines()
-#     print(from_file)
-#
-# with open('myfile2.txt', 'w', encoding='utf-8') as fd:
-#     lines = ['строка\n', 'ещё строка\n', 'и ещё одна строчка\n']
-#     fd.writelines(lines)
-# 1. Программа должна выводить данные
-# 2. Программа должна сохранять данные в текстовом файле
-# 3. Пользователь может ввести одну из характеристик для поиска определенной записи
-#    (Например имя или фамилию человека)
-# main.py
-# FILE_NAME = 'phone_book.txt'
+import csv,os
 from typing import List
+
+def clear_console():
+    os.system('clear')
+
 def read_file(file):
     try:
         with open(file, 'r', encoding='utf-8') as f:
@@ -37,32 +16,15 @@ def read_file(file):
 def show_data(data: list):
     for line in data:
         print(line)
-    # with open('phone_book.txt', 'r', encoding='utf-8') as f:
-    #     lines = f.readlines()
-    #     for line in lines:
-    #         print(line)
-    # FileNotFoundError
-    # try:
-    #     # print('открытие файла')
-    #     with open('phone_book.txt', 'r', encoding='utf-8') as f:
-    #         lines = f.readlines()
-    #         for line in lines:
-    #             print(line)
-    # except FileNotFoundError as err:
-    #     print('файла нет. Сначала введите данные\n')
-    # else:
-    #     print('else')
-    # finally:
-    #     print('finally')
 
-def save_data(file):
-    print('Введите данные контакта:')
-    first_name = input('Введите имя: ')
-    last_name = input('Введите фамилию: ')
-    patronymic = input('Введите отчество: ')
-    phone_number = input('Введите номер телефона: ')
-    with open(file, 'a', encoding='utf-8') as f:
-        f.write(f'{first_name}, {last_name}, {patronymic}, {phone_number}\n')
+
+def save_data(file, data):
+    with open(file, 'w', encoding='utf-8') as f:
+        for line in data:
+            f.write(line)
+    print('изменения зафиксированы')
+
+
 
 def search_data(contacts: List[str]):
     # ['Иван, Иванов, Иванович, 123', 'Петр, Иванов, Петрович, 456']
@@ -74,19 +36,50 @@ def search_data(contacts: List[str]):
             founded.append(contact)
     return founded
 
+
+
+def edit_line(data, id, file_name):
+    print("Что будем изменять 1 - Имя, 2 - Фамилию, 3 - Отчество, 4 - телефон:")
+    answer = int(input()) - 1
+    print('Введите новые данные')
+    pars = data[id].split(', ')
+    pars[answer] = input()
+    data[id] = ', '.join(pars) + '\n'
+    print(['Ошибка редактирования', 'изменения зафиксированы'][save_data(file_name, data)])
+
+
+
+def add_data(file):
+    print('Введите данные контакта:')
+    first_name = input('Введите имя: ')
+    last_name = input('Введите фамилию: ')
+    patronymic = input('Введите отчество: ')
+    phone_number = input('Введите номер телефона: ')
+    with open(file, 'a', encoding='utf-8') as f:
+        f.write(f'{first_name}, {last_name}, {patronymic}, {phone_number}\n')
+
+
+
 def main():
+    clear_console()
     file_name = 'phone_book.txt'
+    if os.path.exists(file_name):
+        print ('Найден и загружен телефонный справочник')
+        data = read_file(file_name)
     flag = True
+
     while flag:
         print('0 - выход')
-        print('1 - запись в файл')
+        print('1 - добавить запись в файл')
         print('2 - показать записи')
         print('3 - найти запись')
+        print('4 - редактировать запись')
+        print('5 - удалить запись')
         answer = input('Выберите действие: ')
         if answer == '0':
             flag = False
         elif answer == '1':
-            save_data(file_name)
+            add_data(file_name)
         elif answer == '2':
             data = read_file(file_name)
             show_data(data)
@@ -94,6 +87,20 @@ def main():
             data = read_file(file_name)
             founded_data = search_data(data)
             show_data(founded_data)
+        elif answer == '4':
+             data = read_file(file_name)
+             show_data(data) 
+             print ('Введите номер строки для редактирования:') 
+             id = int(input())-1
+             edit_line(data,id,file_name)
+        elif answer == '5': 
+             data = read_file(file_name)
+             show_data(data) 
+             print ('Введите номер строки для удаления:') 
+             id = int(input())-1
+             del data[id]
+             print (['Ошибка удаления','изменения зафиксированы'][save_data(file_name,data)]   )
+                               
 
 if __name__ == '__main__':
     main()
